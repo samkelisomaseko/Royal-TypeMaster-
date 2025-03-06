@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analog Typewriter</title>
+    <style>
+        /* Global Styles */
+        @font-face {
+            font-family: "SpecialElite";
+            src: url("https://fonts.gstatic.com/s/specialelite/v18/XLYgIZbkc4JPUL5CVArUVL0ntnAOSFNuQsI.woff2") format('woff2');
+            font-display: swap;
+        }
+
+        :root {
+            --paper-color: #f8f5e9;
+            --typewriter-color: #2a2522;
+            --key-color: #444;
+            --key-text: #eee;
+            --key-hover: #666;
+            --key-active: #777;
+            --button-color: #555;
+            --button-hover: #777;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            overflow: hidden; /* Prevent scrollbars */
+        }
+
+        body {
+            font-family: "SpecialElite", monospace;
+            background-color: #e8e2d4;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23bdb49d' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+            margin: 0;
+            padding: clamp(10px, 2vw, 20px); /* Reduced padding */
+            overflow-x: hidden;
+        }
+
+        /* Typewriter Container */
+        .typewriter {
+            background-color: var(--typewriter-color);
+            border-radius: clamp(6px, 1vw, 10px);
+            padding: clamp(10px, 2vw, 20px); /* Reduced padding */
+            box-shadow: 8px 8px 20px rgba(0, 0, 0, 0.4),
+                inset 2px 2px 5px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(0, 0, 0, 0.3);
+            width: 900px; /* Fixed width for consistent layout */
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #222;
+            background-image: linear-gradient(145deg, #332e2a 0%, #1e1a17 100%);
+            display: flex;
+            flex-direction: column;
+            height: 80vh; /* Fixed height for consistent layout */
+            max-height: 80vh;
+            margin: auto; /* Center the typewriter */
+        }
+
+        /* Vintage Details */
+        .typewriter::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.1) 20%,
+                    rgba(255, 255, 255, 0.1) 80%,
+                    transparent 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .typewriter::after {
+            content: '';
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 4px;
+            background: linear-gradient(90deg,
+                    transparent 0%,
+                    rgba(255, 255, 255, 0.05) 20%,
+                    rgba(255, 255, 255, 0.05) 80%,
+                    transparent 100%);
+            border-radius: 0 0 4px 4px;
+        }
+
+        /* Header with Controls */
+        .typewriter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: clamp(10px, 2vw, 20px); /* Reduced margin */
+        }
+
+        .typewriter-brand {
+            color: #b8a88a;
+            font-size: clamp(0.8rem, 1.5vw, 1.2rem); /* Smaller font size */
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .controls {
+            display: flex;
+            gap: clamp(3px, 0.6vw, 6px); /* Smaller gap */
+        }
+
+        .icon-button {
+            color: #fff;
+            font-size: clamp(0.6rem, 1.2vw, 0.9rem); /* Smaller font size */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            background-color: var(--button-color);
+            border: none;
+            padding: clamp(4px, 1vw, 7px) clamp(5px, 1.2vw, 10px); /* Smaller padding */
+            border-radius: 5px;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3),
+                inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+            font-family: "SpecialElite", monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button:hover {
+            transform: translateY(-2px);
+            background-color: var(--button-hover);
+        }
+
+        .icon-button:active {
+            transform: translateY(1px);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon-button i {
+            margin-right: 5px; /* Smaller margin */
+            font-size: clamp(0.7rem, 1.2vw, 1rem); /* Smaller icon size */
+        }
+
+        /* Paper Container */
+        .paper-container {
+            flex-grow: 1; /* Take up remaining space */
+            overflow: hidden;
+            margin-bottom: clamp(10px, 2vw, 20px); /* Reduced margin */
+            position: relative;
+            border: 1px solid #ccc;
+            background-color: var(--paper-color);
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
+            border-radius: 2px;
+        }
+
+        .paper-container::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            right: 5px;
+            bottom: 5px;
+            border: 1px dashed #ddd;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        .paper-display {
+            color: #111;
+            padding: clamp(10px, 2vw, 15px); /* Reduced padding */
+            font-family: "SpecialElite", monospace;
+            font-size: clamp(0.8rem, 1.5vw, 1rem); /* Smaller font size */
+            white-space: pre-wrap;
+            word-break: break-word;
+            transform: translateY(0);
+            transition: transform 0.3s ease-out;
+            text-align: left;
+            line-height: 1.5;
+            opacity: 0.95;
+            position: relative;
+            min-height: 100%;
+            overflow-y: auto; /* Enables scrolling within the paper display */
+        }
+
+        .paper-display::-webkit-scrollbar {
+            width: 5px; /* Thin scrollbar */
+        }
+
+        .paper-display::-webkit-scrollbar-thumb {
+            background-color: #aaa; /* Scrollbar color */
+            border-radius: 2.5px;
+        }
+
+        .paper-display::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px; /* Reduced height */
+            background: linear-gradient(to bottom, transparent, var(--paper-color));
+            pointer-events: none;
+            opacity: 0.7;
+        }
+
+        /* Keyboard Layout */
+        .keyboard {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);  /* Fixed columns */
+            gap: clamp(2px, 0.4vw, 4px); /* Smaller gap */
+        }
+
+        .key {
+            background-color: var(--key-color);
+            color: var(--key-text);
+            border-radius: 4px;
+            padding: clamp(4px, 0.8vw, 7px); /* Smaller padding */
+            text-align: center;
+            cursor: pointer;
+            font-size: clamp(0.6rem, 1.2vw, 0.8rem); /* Smaller font size */
+            font-weight: bold;
+            transition: all 0.15s ease;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5),
+                inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+            border: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .key::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .key:hover {
+            background-color: var(--key-hover);
+        }
+
+        .key:active,
+        .key.pressed {
+            transform: scale(0.92);
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+            background-color: var(--key-active);
+        }
+
+        .key.space {
+            grid-column: span 4;
+        }
+
+        .key.enter {
+            grid-column: span 2;
+        }
+
+        .key.backspace {
+            grid-column: span 2;
+        }
+
+        .key.shift,
+        .key.ctrl,
+        .key.capslock {
+            position: relative;
+        }
+
+        .key.active {
+            background-color: #6b6b6b;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Ink ribbon effect */
+        .ink-ribbon {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #b22222, #8b0000);
+            opacity: 0.7;
+            z-index: 10;
+        }
+
+        /* Cursor */
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background-color: #333;
+            margin-left: 2px;
+            animation: blink 1s step-end infinite;
+            vertical-align: text-bottom;
+            position: relative;
+        }
+
+        @keyframes blink {
+            from,
+            to {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+        }
+
+        /* Paper feed animation */
+        @keyframes paperFeed {
+            from {
+                transform: translateY(-100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        /* Key press animation */
+        @keyframes keyPress {
+            0% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(2px);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Sound visualizer */
+        .sound-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .sound-indicator:hover {
+            transform: scale(1.1);
+        }
+
+        .sound-indicator.muted {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-family: "SpecialElite", monospace;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* Basic Icons - using text-based alternatives */
+        .icon {
+            display: inline-block;
+            /* You can style them more if you want */
+        }
+    </style>
+</head>
+
+<body>
+
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Sound Indicator -->
+    <div class="sound-indicator" id="soundToggle">
+        <span class="icon" id="volumeIcon">🔊</span>
+    </div>
+
+    <div class="typewriter">
+        <div class="ink-ribbon"></div>
+        <div class="typewriter-header">
+            <div class="typewriter-brand">Royal Typemaster</div>
+            <div class="controls">
+                <button class="icon-button" id="clearButton" title="Clear document (Ctrl+Delete)">
+                    <span class="icon">🗑</span> Clear
+                </button>
+                <button class="icon-button" id="saveButton" title="Save document (Ctrl+S)">
+                    <span class="icon">💾</span> Save
+                </button>
+                <button class="icon-button" id="printButton" title="Print document (Ctrl+P)">
+                    <span class="icon">🖨</span> Print
+                </button>
+            </div>
+        </div>
+
+        <div class="paper-container" id="paperContainer">
+            <div class="paper-display" id="paper"></div>
+        </div>
+
+        <div class="keyboard" id="keyboard">
+            <!-- First Row -->
+            <div class="key" data-key="`">`</div>
+            <div class="key" data-key="1">1</div>
+            <div class="key" data-key="2">2</div>
+            <div class="key" data-key="3">3</div>
+            <div class="key" data-key="4">4</div>
+            <div class="key" data-key="5">5</div>
+            <div class="key" data-key="6">6</div>
+            <div class="key" data-key="7">7</div>
+            <div class="key" data-key="8">8</div>
+            <div class="key" data-key="9">9</div>
+            <div class="key" data-key="0">0</div>
+            <div class="key" data-key="-">-</div>
+
+            <!-- Second Row -->
+            <div class="key" data-key="q">Q</div>
+            <div class="key" data-key="w">W</div>
+            <div class="key" data-key="e">E</div>
+            <div class="key" data-key="r">R</div>
+            <div class="key" data-key="t">T</div>
+            <div class="key" data-key="y">Y</div>
+            <div class="key" data-key="u">U</div>
+            <div class="key" data-key="i">I</div>
+            <div class="key" data-key="o">O</div>
+            <div class="key" data-key="p">P</div>
+            <div class="key" data-key="[">[</div>
+            <div class="key" data-key="]">]</div>
+
+            <!-- Third Row -->
+            <div class="key" data-key="a">A</div>
+            <div class="key" data-key="s">S</div>
+            <div class="key" data-key="d">D</div>
+            <div class="key" data-key="f">F</div>
+            <div class="key" data-key="g">G</div>
+            <div class="key" data-key="h">H</div>
+            <div class="key" data-key="j">J</div>
+            <div class="key" data-key="k">K</div>
+            <div class="key" data-key="l">L</div>
+            <div class="key" data-key=";">;</div>
+            <div class="key" data-key="'">'</div>
+            <div class="key ctrl" data-key="Control">Ctrl</div>
+            <div class="key backspace" data-key="Backspace">Back</div>
+
+            <!-- Fourth Row -->
+            <div class="key shift" data-key="Shift">Shift</div>
+            <div class="key" data-key="z">Z</div>
+            <div class="key" data-key="x">X</div>
+            <div class="key" data-key="c">C</div>
+            <div class="key" data-key="v">V</div>
+            <div class="key" data-key="b">B</div>
+            <div class="key" data-key="n">N</div>
+            <div class="key" data-key="m">M</div>
+            <div class="key" data-key=",">,</div>
+            <div class="key" data-key=".">.</div>
+            <div class="key" data-key="/">/</div>
+            <div class="key enter" data-key="Enter">Enter</div>
+
+            <!-- Fifth Row -->
+            <div class="key capslock" data-key="CapsLock">Caps</div>
+            <div class="key alt" data-key="Alt">Alt</div>
+            <!-- Replaced Win Key -->
+            <div class="key" data-key="\\">\\</div>
+            <div class="key space" data-key=" ">Space</div>
+            <div class="key" data-key="ArrowUp">↑</div>
+            <div class="key" data-key="ArrowDown">↓</div>
+
+
+        </div>
+    </div>
+
+    <!-- Audio files (URLs) -->
+    <audio id="keySound" preload="auto"></audio>
+    <audio id="spaceSound" preload="auto"></audio>
+    <audio id="returnSound" preload="auto"></audio>
+    <audio id="backspaceSound" preload="auto"></audio>
+    <audio id="printSound" preload="auto"></audio>
+    <audio id="clearSound" preload="auto"></audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+
+        // Initialize paper content
+        let paperContent = "";
+        let isShiftActive = false;
+        let isCtrlActive = false;
+        let isCapsLockActive = false;
+        let isSoundMuted = false;
+        let cursorVisible = true;
+
+        // DOM Elements
+        const paper = document.getElementById("paper");
+        const keyboard = document.getElementById("keyboard");
+        const keySound = document.getElementById("keySound");
+        const spaceSound = document.getElementById("spaceSound");
+        const returnSound = document.getElementById("returnSound");
+        const backspaceSound = document.getElementById("backspaceSound");
+        const clearButton = document.getElementById("clearButton");
+        const saveButton = document.getElementById("saveButton");
+        const printButton = document.getElementById("printButton");
+        const soundToggle = document.getElementById("soundToggle");
+        const volumeIcon = document.getElementById("volumeIcon");
+        const printSound = document.getElementById("printSound");
+        const clearSound = document.getElementById("clearSound");
+        const toast = document.getElementById("toast");
+
+
+        // Audio files (URLs) - Replace with actual Mixkit URLs
+        keySound.src = "mixkit-hard-typewriter-click-1119.wav"; //Example link only - Replace with relevant sound
+        spaceSound.src = "mixkit-hard-typewriter-click-1119.wav";//Example link only - Replace with relevant sound
+        returnSound.src = "mixkit-hard-typewriter-click-1119.wav";//Example link only - Replace with relevant sound
+        backspaceSound.src = "mixkit-hard-typewriter-click-1119.wav";//Example link only - Replace with relevant sound
+        printSound.src = "mixkit-hard-typewriter-click-1119.wav";//Example link only - Replace with relevant sound
+        clearSound.src = "mixkit-hard-typewriter-click-1119.wav";//Example link only - Replace with relevant sound
+
+        // Function to update the paper display
+        function updatePaper() {
+            paper.innerHTML = paperContent + (cursorVisible ? '<span class="cursor"></span>' : '');
+        }
+
+        // Function to play sound
+        function playSound(sound) {
+            if (!isSoundMuted && sound) { // Ensure sound is not null
+                try {
+                    sound.currentTime = 0; // Reset sound to start
+                    sound.play();
+                } catch (error) {
+                    console.error("Error playing sound:", error);
+                }
+            }
+        }
+
+        // Function to toggle sound
+        function toggleSound() {
+            isSoundMuted = !isSoundMuted;
+            soundToggle.classList.toggle("muted", isSoundMuted);
+            volumeIcon.textContent = isSoundMuted ? '🔇' : '🔊'; // Update icon
+        }
+
+        // Function to handle key press
+        function handleKeyPress(key) {
+            if (!key || !key.dataset) return; // Defensive check
+
+            let char = key.dataset.key;
+
+            if (char === "Enter") {
+                paperContent += "\n";
+                playSound(returnSound);
+            } else if (char === "Backspace") {
+                paperContent = paperContent.slice(0, -1);
+                playSound(backspaceSound);
+            } else if (char === " ") {
+                paperContent += " ";
+                playSound(spaceSound);
+            } else if (char === "Shift") {
+                isShiftActive = !isShiftActive;
+                toggleShiftKeys();
+            }
+            else if (char === "Control") {
+                isCtrlActive = !isCtrlActive;
+            }
+            else if (char === "CapsLock") {
+                isCapsLockActive = !isCapsLockActive;
+                toggleCapsLockKey();
+            }
+            else if (char === "ArrowUp") {
+                paperContent += "↑";
+                playSound(keySound);
+            }
+            else if (char === "ArrowDown") {
+                paperContent += "↓";
+                playSound(keySound);
+            }
+            else if (char === "Alt") {
+                // Handle Alt key functionality if needed
+            }
+            else if (char === "\\") {
+                paperContent += "\\";
+                playSound(keySound);
+            }
+            else {
+                let caseSensitive = isShiftActive || isCapsLockActive;
+                char = caseSensitive ? char.toUpperCase() : char.toLowerCase();
+                paperContent += char;
+                playSound(keySound);
+            }
+
+            updatePaper();
+            try {
+              localStorage.setItem('typewriterContent', paperContent); // Save to local storage
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+                showToast("Error saving to local storage.");
+            }
+        }
+
+        // Toggle shift keys
+        function toggleShiftKeys() {
+            document.querySelectorAll('.key').forEach(key => {
+                const char = key.dataset.key;
+                if (char && char.length === 1 && char.match(/[a-z]/i)) {
+                    key.textContent = isShiftActive ? char.toUpperCase() : char.toLowerCase();
+                }
+            });
+        }
+
+        function toggleCapsLockKey() {
+            const capsLockKey = document.querySelector('.key[data-key="CapsLock"]');
+            if (capsLockKey) {
+              capsLockKey.classList.toggle('active', isCapsLockActive);
+            }
+        }
+
+        // Function to clear the paper
+        function clearPaper() {
+            paperContent = "";
+            updatePaper();
+            try {
+                localStorage.setItem('typewriterContent', paperContent); // Clear local storage
+            } catch (e) {
+                console.error("Error clearing localStorage:", e);
+                showToast("Error clearing local storage.");
+            }
+            playSound(clearSound);
+        }
+
+        // Function to save the document to local storage (no download)
+        function saveDocument() {
+            try {
+                localStorage.setItem('typewriterContent', paperContent);
+                showToast("Document saved to local storage!");
+            } catch (e) {
+                console.error("Error saving to localStorage:", e);
+                showToast("Error saving to local storage.");
+            }
+        }
+
+        // Function to generate and download PDF
+        function printDocument() {
+            try {
+              const { jsPDF } = window.jspdf;
+              const doc = new jsPDF();
+              doc.setFont('SpecialElite');
+              doc.setFontSize(14);
+
+              const textLines = paperContent.split('\n'); // Split into lines
+              let y = 15; // Initial Y position
+
+              textLines.forEach(line => {
+                  doc.text(line, 15, y); // Add line to PDF
+                  y += 10; // Increase Y position for the next line
+              });
+              doc.save("document.pdf");
+              playSound(printSound); // Play print sound only on success
+              showToast("PDF downloaded!");
+            } catch (e) {
+                console.error("Error creating PDF:", e);
+                showToast("Error creating PDF.  Is jspdf library loaded correctly?");
+            }
+
+        }
+
+
+        // Function to show toast notification
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        // Event Listeners
+        keyboard.addEventListener("click", (event) => {
+            if (event.target.classList.contains("key")) {
+                handleKeyPress(event.target);
+                event.target.classList.add("pressed");
+                setTimeout(() => {
+                    event.target.classList.remove("pressed");
+                }, 100);
+            }
+        });
+
+        clearButton.addEventListener("click", clearPaper);
+        saveButton.addEventListener("click", saveDocument);
+        printButton.addEventListener("click", printDocument);
+        soundToggle.addEventListener("click", toggleSound);
+
+        // Keyboard Support
+        document.addEventListener("keydown", (event) => {
+            let key = document.querySelector(`.key[data-key="${event.key}"]`);
+            let codeKey = document.querySelector(`.key[data-key="${event.code}"]`);
+            let activeKey = key || codeKey;
+
+            if (event.key === "Shift") {
+                isShiftActive = true;
+                toggleShiftKeys();
+            }
+
+            if (event.key === "Control") {
+                isCtrlActive = true;
+            }
+
+            if (event.key === "CapsLock") {
+                isCapsLockActive = !isCapsLockActive;
+                toggleCapsLockKey();
+            }
+
+
+            if (activeKey) {
+                event.preventDefault(); // Prevent default action for special keys
+
+                activeKey.classList.add("pressed");
+                handleKeyPress({ dataset: { key: activeKey.dataset.key } });
+            }
+
+            // Hotkey handling
+            if (isCtrlActive) {
+                if (event.key === "s") {
+                    event.preventDefault(); // Prevent browser save
+                    saveDocument();
+                } else if (event.key === "p") {
+                    event.preventDefault(); // Prevent browser print
+                    printDocument();
+                }
+                else if (event.key === "Delete") {
+                    event.preventDefault(); // Prevent browser delete
+                    clearPaper();
+                }
+            }
+        });
+
+        document.addEventListener("keyup", (event) => {
+             let key = document.querySelector(`.key[data-key="${event.key}"]`);
+            let codeKey = document.querySelector(`.key[data-key="${event.code}"]`);
+            let activeKey = key || codeKey;
+
+            if (event.key === "Shift") {
+                isShiftActive = false;
+                toggleShiftKeys();
+            }
+
+            if (event.key === "Control") {
+                isCtrlActive = false;
+            }
+            if (activeKey) {
+                activeKey.classList.remove("pressed");
+            }
+        });
+
+        // Cursor blink effect
+        setInterval(() => {
+            cursorVisible = !cursorVisible;
+            updatePaper();
+        }, 500);
+
+        // Load saved content from local storage on page load
+        window.onload = () => {
+            try {
+                const savedContent = localStorage.getItem('typewriterContent');
+                if (savedContent) {
+                    paperContent = savedContent;
+                    updatePaper();
+                }
+            } catch (e) {
+                console.error("Error loading from localStorage:", e);
+                showToast("Error loading saved document.");
+            }
+            volumeIcon.textContent = isSoundMuted ? '🔇' : '🔊';
+        };
+
+        // Initial update
+        updatePaper();
+
+    </script>
+</body>
+
+</html>
